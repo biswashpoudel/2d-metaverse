@@ -6,6 +6,7 @@ export const adminRouter = Router();
 adminRouter.use(adminMiddleware)
 
 adminRouter.post("/element", async (req, res) => {
+    try {
     const parsedData = CreateElementSchema.safeParse(req.body)
     if (!parsedData.success) {
         res.status(400).json({message: "Validation failed"})
@@ -24,15 +25,23 @@ adminRouter.post("/element", async (req, res) => {
     res.json({
         id: element.id
     })
-})
+    }
+    catch(error){
+        console.error("Error creating element",  error);
+        res.status(500).json({ message: "Internal Server Error" });    
+    }    
+  
+});
 
-adminRouter.put("/element/:elementId", (req, res) => {
+adminRouter.put("/element/:elementId", async (req, res) => {
+
+    try{
     const parsedData = UpdateElementSchema.safeParse(req.body)
     if (!parsedData.success) {
         res.status(400).json({message: "Validation failed"})
         return
     }
-    client.element.update({
+    await client.element.update({
         where: {
             id: req.params.elementId
         },
@@ -41,9 +50,15 @@ adminRouter.put("/element/:elementId", (req, res) => {
         }
     })
     res.json({message: "Element updated"})
-})
+} 
+catch(error){
+    console.error(" Error updating the element ", error)
+    res.status(500).json({message: "Internal Server Error"});
+}
+}); 
 
 adminRouter.post("/avatar", async (req, res) => {
+    try{
     const parsedData = CreateAvatarSchema.safeParse(req.body)
     if (!parsedData.success) {
         res.status(400).json({message: "Validation failed"})
@@ -56,9 +71,16 @@ adminRouter.post("/avatar", async (req, res) => {
         }
     })
     res.json({avatarId: avatar.id})
-})
+}
+
+catch(error){
+    console.error(" Error creating the avatar ", error)
+    res.status(500).json({message:"Internal Server Error"})
+}
+}); 
 
 adminRouter.post("/map", async (req, res) => {
+    try{
     const parsedData = CreateMapSchema.safeParse(req.body)
     if (!parsedData.success) {
         res.status(400).json({message: "Validation failed"})
@@ -83,4 +105,11 @@ adminRouter.post("/map", async (req, res) => {
     res.json({
         id: map.id
     })
-})
+}
+
+catch(error){
+    console.error("Error creating the map", error)
+    res.status(500).json({message:"Internal Server Error"})
+}
+
+}); 
